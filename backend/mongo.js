@@ -1,22 +1,23 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+import dotenv from 'dotenv-defaults';
+// import dataInit from 'uplo';
 
-function connectMongo() {
-  mongoose.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-  });
+const connection = () => {
+    dotenv.config();
+    if (!process.env.MONGO_URL) {
+        console.error('No MONGO_URL')
+        process.exit(1)
+    }
+    mongoose.connect(process.env.MONGO_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    }).then(() => console.log("MongoDB connection created!"));
 
-  const db = mongoose.connection;
+    const db = mongoose.connection;
 
-  db.on("error", console.error.bind(console, "connection error:"));
-  db.once("open", function () {
-    console.log("Mongo Connected!");
-  });
+    // dataInit();
 }
-
 const mongo = {
-  connect: connectMongo,
+    connect: connection
 };
-
 export default mongo;

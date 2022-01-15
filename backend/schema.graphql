@@ -1,45 +1,118 @@
-type Person {
-    ssn: String!
-    name: ID!
-    location: Location
-    severity: Int!
-}
-
-type Location {
-    name: String!
-    description: String!  
-    # e.g. "10617 臺北市羅斯福路四段一號; No.1, Sec. 4, Roosevelt Road, Taipei, 10617 Taiwan."
-    # 用 string match 查每個縣市的確診數
-}
-
 type Query {
-    statsCount(
-        severity: Int,
-        locationKeywords: [String!]!,
-    ): [Int!]
+  stores(query: String): [Store]!
+  posts(query: ID!): [Post]!
+  post(postId: ID!): Post!
+  comments(post: ID!): [Comment]!
+  user(name: String!): User
+  store(name: String!): Store
 }
 
 type Mutation {
-    insertPeople(data: [PersonInput!]!): Boolean
+  createPost(data: CreatePostInput!): Post!
+  createStore(data: CreateStoreInput!): Store!
+  createComment(data: CreateCommentInput!): Comment!
+  login(name: String!, password: String!): LoginPayLoad!
+  signup(name: String!, password: String!): AuthPayload!
+  findStore(name: String!): Store
+  findStoreById(id: ID!): Store
+  addFav(storeId: ID!, userId: ID!): Store!
+  removeFav(storeId: ID!, userId: ID!): Store!
+  editProfile(userId: ID!, biography: String!): User
+  # uploadUserImage(image: Upload!, userId: ID!): String!
+}
+type LoginPayLoad {
+  message: String!
+  user: User
 }
 
-input PersonInput {
-    ssn: String!
-    name: String!
-    severity: Int!
-    location: LocationInput
-}
-
-input LocationInput {
-    name: String!
-    description: String!
+type AuthPayload {
+  message: String!
+  password: String
 }
 
 type Subscription {
-    people: PeopleSubscriptionPayload
+  comment(id: ID!): CommentSubscriptionPayload!
+  post(id: ID!): PostSubscriptionPayload!
+  store(id: ID): StoreSubscriptionPayload!
 }
 
-type PeopleSubscriptionPayload {
-    inserted: [Person!]!
-    deleted: [Person!]!
+type CommentSubscriptionPayload {
+  mutation: MutationType!
+  data: Comment!
+}
+
+type PostSubscriptionPayload {
+  mutation: MutationType!
+  data: Post!
+}
+
+type StoreSubscriptionPayload {
+  mutation: MutationType!
+  data: Store!
+}
+
+input CreatePostInput {
+  title: String!
+  body: String!
+  score: Int!
+  author: String!
+  store: ID!
+}
+
+input CreateCommentInput {
+  text: String!
+  sender: ID!
+  post: ID!
+}
+
+input CreateStoreInput {
+  name: String!
+  location: String!
+}
+
+enum MutationType {
+  CREATED
+  UPDATED
+  DELETED
+}
+
+type Comment {
+  id: ID!
+  text: String!
+  sender: String!
+  post: ID!
+}
+
+type StoreInfo{
+  id: ID!
+  name: String!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  body: String!
+  author: String!
+  comments: [Comment]!
+  store: StoreInfo!
+  score: Int!
+}
+
+type Store {
+  id: ID!
+  name: String!
+  score: Int!
+  location: String!
+  posts: [Post]!
+  postCount: Int!
+}
+
+type User {
+  id: ID!
+  name: String!
+  password: String!
+  posts: [Post]!
+  favs: [Store]!
+  biography: String
+  # image: String
 }

@@ -1,20 +1,27 @@
+import mongo from "./mongo"
 import { GraphQLServer, PubSub } from 'graphql-yoga';
-
-import db from './db';
 import Query from './resolvers/Query';
 import Mutation from './resolvers/Mutation';
 import Subscription from './resolvers/Subscription';
-import mongo from './mongo';
+import Post from './resolvers/Post';
+import Store from './resolvers/Store';
+import User from './resolvers/User';
+import Comment from './resolvers/Comment';
+import db from './db';
 
-require('dotenv-defaults').config();
 const pubsub = new PubSub();
 
 const server = new GraphQLServer({
     typeDefs: './src/schema.graphql',
     resolvers: {
+        // TODO: add the resolvers
         Query,
         Mutation,
         Subscription,
+        Post,
+        User,
+        Comment,
+        Store
     },
     context: {
         db,
